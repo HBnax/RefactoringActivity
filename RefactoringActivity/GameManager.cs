@@ -4,6 +4,7 @@ public class GameManager
 {
     private bool IsRunning;
     private Player Player;
+    //would add an enum for the options but I'm too tired
     public World World;
 
     public void RunGame()
@@ -27,55 +28,15 @@ public class GameManager
             }
             else if (input.StartsWith("go"))
             {
-                string[] parts = input.Split(' ');
-                if (parts.Length > 1)
-                {
-                    string direction = parts[1];
-                    if (Player.MovePlayer(Player, direction, World))
-                    {
-                        Console.WriteLine($"You move {direction}.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("You can't go that way.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Move where? (north, south, east, west)");
-                }
+                MovePlayer(input);
             }
             else if (input.StartsWith("take"))
             {
-                string[] parts = input.Split(' ');
-                if (parts.Length > 1)
-                {
-                    string itemName = parts[1];
-                    if (!Player.TakeItem(itemName, World.Locations[Player.GetCurrentLocation()]))
-                    {
-                        Console.WriteLine($"There is no {itemName} here.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Take what?");
-                }
+                TakeItem(input);
             }
             else if (input.StartsWith("use"))
             {
-                string[] parts = input.Split(' ');
-                if (parts.Length > 1)
-                {
-                    string itemName = parts[1];
-                    if (!Player.UseItem(itemName))
-                    {
-                        Console.WriteLine($"You can't use the {itemName} here.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Use what?");
-                }
+                UseItem(input);
             }
             else if (input == "inventory")
             {
@@ -83,23 +44,7 @@ public class GameManager
             }
             else if (input.StartsWith("solve"))
             {
-                string[] parts = input.Split(' ');
-                if (parts.Length > 1)
-                {
-                    string puzzleName = parts[1];
-                    if (Player.SolvePuzzle(puzzleName, World))
-                    {
-                        Console.WriteLine($"You solved the {puzzleName} puzzle!");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"That's not the right solution for the {puzzleName} puzzle.");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Solve what?");
-                }
+                SolvePuzzle(input);
             }
             else if (input == "quit")
             {
@@ -109,6 +54,82 @@ public class GameManager
             {
                 Console.WriteLine("Unknown command. Try 'help'.");
             }
+        }
+    }
+
+    private void SolvePuzzle(string input)
+    {
+        string[] parts = input.Split(' ');
+        if (parts.Length > 1)
+        {
+            string puzzleName = parts[1];
+            if (World.SolvePuzzle(Player, puzzleName))
+            {
+                Console.WriteLine($"You solved the {puzzleName} puzzle!");
+            }
+            else
+            {
+                Console.WriteLine($"That's not the right solution for the {puzzleName} puzzle.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Solve what?");
+        }
+    }
+
+    private void UseItem(string input)
+    {
+        string[] parts = input.Split(' ');
+        if (parts.Length > 1)
+        {
+            string itemName = parts[1];
+            if (!World.UseItem(Player, itemName))
+            {
+                Console.WriteLine($"You can't use the {itemName} here.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Use what?");
+        }
+    }
+
+    private void TakeItem(string input)
+    {
+        string[] parts = input.Split(' ');
+        if (parts.Length > 1)
+        {
+            string itemName = parts[1];
+            if (!World.TakeItem(Player, itemName))
+            {
+                Console.WriteLine($"There is no {itemName} here.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Take what?");
+        }
+    }
+
+    private void MovePlayer(string input)
+    {
+        string[] parts = input.Split(' ');
+        if (parts.Length > 1)
+        {
+            string direction = parts[1];
+            if (World.MovePlayer(Player, direction))
+            {
+                Console.WriteLine($"You move {direction}.");
+            }
+            else
+            {
+                Console.WriteLine("You can't go that way.");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Move where? (north, south, east, west)");
         }
     }
 
