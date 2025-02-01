@@ -4,27 +4,27 @@ public class GameManager
 {
     private bool IsRunning;
     private Player Player;
-    //would add an enum for the options, but I'm too tired
-    public World World;
+    private World World;
+
 
     public void RunGame()
     {
-        InitializeGame();
+        IsRunning = true;
+        Player = new Player(100);
+        World = new World();
 
-        PrintWelcomeMessage();
+        ShowWelcomeMessage();
 
         while (IsRunning)
         {
-            Console.WriteLine();
-            Console.WriteLine(World.GetLocationDetails(Player.GetCurrentLocation()));
-            Console.Write("> ");
+            ShowPlayerLocation();
             string input = Console.ReadLine()?.ToLower();
             if (string.IsNullOrEmpty(input)) 
                 return;
-
+            
             if (input == "help")
             {
-                PrintCommands();
+                ShowCommands();
             }
             else if (input.StartsWith("go"))
             {
@@ -48,13 +48,21 @@ public class GameManager
             }
             else if (input == "quit")
             {
-                QuitGame();
+                IsRunning = false;
+                Console.WriteLine("Thanks for playing!");
             }
             else
             {
                 Console.WriteLine("Unknown command. Try 'help'.");
             }
         }
+    }
+
+    private void ShowPlayerLocation()
+    {
+        Console.WriteLine();
+        Console.WriteLine(World.GetLocationDetails(Player.GetCurrentLocation()));
+        Console.Write("> ");
     }
 
     private void SolvePuzzle(string input)
@@ -133,13 +141,7 @@ public class GameManager
         }
     }
 
-    private void QuitGame()
-    {
-        IsRunning = false;
-        Console.WriteLine("Thanks for playing!");
-    }
-
-    private static void PrintCommands()
+    private static void ShowCommands()
     {
         Console.WriteLine("Available commands:");
         Console.WriteLine("- go [direction]: Move in a direction (north, south, east, west).");
@@ -150,14 +152,7 @@ public class GameManager
         Console.WriteLine("- quit: Exit the game.");
     }
 
-    private void InitializeGame()
-    {
-        IsRunning = true;
-        Player = new Player(100);
-        World = new World();
-    }
-
-    private static void PrintWelcomeMessage()
+    private static void ShowWelcomeMessage()
     {
         Console.WriteLine("Welcome to the Text Adventure Game!");
         Console.WriteLine("Type 'help' for a list of commands.");

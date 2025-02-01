@@ -2,146 +2,113 @@
 
 public class World
 {
-    public Dictionary<string, Location> Locations;
-    
-    private Location start;
-    private Location forest;
-    private Location cave;
+    private Dictionary<string, Location> _locations;
 
     public World()
     {
-        Locations = new Dictionary<string, Location>();
+        _locations = new Dictionary<string, Location>();
         InitializeWorld();
-    }
-
-    public Dictionary<string, Location> GetLocations()
-    {
-        return Locations;
     }
 
     private void InitializeWorld()
     {
-        InitializeLocations();
-        InitializeExits();
-        InitializeItems();
-        InitializePuzzles();
-        PopulateDictionaryWithLocations();
+        Location start = new("Start", "You are at the starting point of your adventure.");
+        Location forest = new("Forest", "You are in a dense, dark forest.");
+        Location cave = new("Cave", "You see a dark, ominous cave.");
+
+        InitializeExits(start, forest, cave);
+
+        InitializeItems(start, forest, cave);
+
+        InitializePuzzles(start);
+
+        InitializeLocations(start, forest, cave);
     }
 
-    private void InitializePuzzles()
+    private static void InitializePuzzles(Location start)
     {
-        start.AddPuzzle("riddle", "What's tall as a house, round as a cup, and all the king's horses can't draw it up?", "well");
+        start.GetPuzzles().Add(new Puzzle("riddle",
+            "What's tall as a house, round as a cup, and all the king's horses can't draw it up?", "well"));
+    }
+
+    private static void InitializeItems(Location start, Location forest, Location cave)
+    {
+        start.GetItems().Add("map");
+        forest.GetItems().Add("key");
+        forest.GetItems().Add("potion");
+        cave.GetItems().Add("sword");
+    }
+
+    private static void InitializeExits(Location start, Location forest, Location cave)
+    {
+        start.GetExits().Add("north", "Forest");
+        forest.GetExits().Add("south", "Start");
+        forest.GetExits().Add("east", "Cave");
+        cave.GetExits().Add("west", "Forest");
+    }
+
+    private void InitializeLocations(Location start, Location forest, Location cave)
+    {
+        _locations.Add("Start", start);
+        _locations.Add("Forest", forest);
+        _locations.Add("Cave", cave);
     }
     
-    private void InitializeLocations()
-    {
-        start = new Location("Start", "You are at the starting point of your adventure.");
-        forest = new Location("Forest", "You are in a dense, dark forest.");
-        cave = new Location("Cave", "You see a dark, ominous cave.");
-    }
 
-    private void PopulateDictionaryWithLocations()
-    {
-        Locations.Add("Start", start);
-        Locations.Add("Forest", forest);
-        Locations.Add("Cave", cave);
-    }
-
-    private void InitializeItems()
-    {
-        start.AddItem("map");
-        forest.AddItem("key");
-        forest.AddItem("potion");
-        cave.AddItem("sword");
-    }
-
-    private void InitializeExits()
-    {
-        start.AddExit("north", "Forest");
-        forest.AddExit("south", "Start");
-        forest.AddExit("east", "Cave");
-        cave.AddExit("west", "Forest");
-    }
-
-    public string GetLocationDescription(string locationName)
-    {
-        if (Locations.ContainsKey(locationName)) 
-            return Locations[locationName].GetDescription();
-        return "Unknown location.";
-    }
-
-    public string GetLocationDetails(string locationName)
-    {
-        if (!Locations.ContainsKey(locationName)) 
-            return "Unknown location.";
-
-        Location location = Locations[locationName];
-        string details = location.GetDescription();
-        
-        details = CompileLocationDetails(location, details);
-
-        return details;
-    }
-
-    private static string CompileLocationDetails(Location location, string details)
-    {
-        if (location.GetExits().Count > 0)
-        {
-            details = GetLocationExitDetails(details, location);
-        }
-
-        if (location.GetItems().Count > 0)
-        {
-            details = GetLocationItemDetails(details, location);
-        }
-
-        if (location.GetPuzzles().Count > 0)
-        {
-            details = GetLocationPuzzleDetails(details, location);
-        }
-
-        return details;
-    }
-
-    private static string GetLocationPuzzleDetails(string details, Location location)
-    {
-        details += "\nYou see the following puzzles:";
-        foreach (Puzzle puzzle in location.GetPuzzles()) 
-            details += $"\n- {puzzle.GetName()}";
-        return details;
-    }
-
-    private static string GetLocationItemDetails(string details, Location location)
-    {
-        details += "\nYou see the following items:";
-        foreach (string item in location.GetItems()) 
-            details += $"\n- {item}";
-        return details;
-    }
-
-    private static string GetLocationExitDetails(string details, Location location)
-    {
-        details += " Exits lead: ";
-        foreach (string exit in location.GetExits().Keys)
-            details += exit + ", ";
-        details = details.Substring(0, details.Length - 2);
-        return details;
-    }
-    
     public bool MovePlayer(Player player, string direction)
     {
-        if (Locations[player.GetCurrentLocation()].GetExits().ContainsKey(direction))
+        if (_locations[player.GetCurrentLocation()].GetExits().ContainsKey(direction))
         {
-            player.SetCurrentLocation(Locations[player.GetCurrentLocation()].GetExits()[direction]);
+            player.SetCurrentLocation(_locations[player.GetCurrentLocation()].GetExits()[direction]);
             return true;
         }
 
         return false;
     }
-    
+
+    public string GetLocationDescription(string locationName)
+    {
+        if (_locations.ContainsKey(locationName)) 
+            return _locations[locationName].GetDescription();
+        return "Unknown location.";
+    }
+
+    public string GetLocationDetails(string locationName)
+    {
+        if (!_locations.ContainsKey(locationName)) 
+            return "Unknown location.";
+
+        Location location = _locations[locationName];
+        string details = location.GetDescription();
+        
+        if (location.GetExits().Count > 0)
+        {
+            details += " Exits lead: ";
+            foreach (string exit in location.GetExits().Keys)
+                details += exit + ", ";
+            details = details.Substring(0, details.Length - 2);
+        }
+
+        if (location.GetItems().Count > 0)
+        {
+            details += "\nYou see the following items:";
+            foreach (string item in location.GetItems()) 
+                details += $"\n- {item}";
+        }
+
+        if (location.GetPuzzles().Count > 0)
+        {
+            details += "\nYou see the following puzzles:";
+            foreach (Puzzle puzzle in location.GetPuzzles()) 
+                details += $"\n- {puzzle.GetName()}";
+        }
+
+        return details;
+    }
+
     public bool TakeItem(Player player, string itemName)
     {
-        Location location = Locations[player.GetCurrentLocation()];
+        Location location = _locations[player.GetCurrentLocation()];
         if (location.GetItems().Contains(itemName))
         {
             location.GetItems().Remove(itemName);
@@ -149,6 +116,7 @@ public class World
             Console.WriteLine($"You take the {itemName}.");
             return true;
         }
+
         return false;
     }
 
@@ -175,7 +143,7 @@ public class World
 
     public bool SolvePuzzle(Player player, string puzzleName)
     {
-        Location location = Locations[player.GetCurrentLocation()];
+        Location location = _locations[player.GetCurrentLocation()];
         Puzzle? puzzle = location.GetPuzzles().Find(p => p.GetName() == puzzleName);
 
         if (puzzle != null && puzzle.Solve())
@@ -186,4 +154,6 @@ public class World
 
         return false;
     }
+    
+    
 }

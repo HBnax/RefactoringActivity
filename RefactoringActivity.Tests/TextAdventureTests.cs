@@ -24,11 +24,11 @@ public class TextAdventureTests
         var player = new Player(100);
 
         // Act
-        player.AddInventoryItem("key");
+        player.GetInventory().Add("key");
 
         // Assert
         Assert.Contains("key", player.GetInventory());
-        Assert.True(player.HasItem("key"));
+        Assert.True(player.GetInventory().Contains("key"));
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public class TextAdventureTests
         var player = new Player(100);
 
         // Act
-        bool moved = player.MovePlayer(player, "north", world);
+        bool moved = world.MovePlayer(player, "north");
 
         // Assert
         Assert.True(moved);
@@ -69,7 +69,7 @@ public class TextAdventureTests
         var player = new Player(100);
 
         // Act
-        bool moved = player.MovePlayer(player, "west", world);
+        bool moved = world.MovePlayer(player, "west");
 
         // Assert
         Assert.False(moved);
@@ -80,11 +80,11 @@ public class TextAdventureTests
     public void World_CanTakeItemFromLocation()
     {
         // Arrange
+        var world = new World();
         var player = new Player(100);
-        var location = new Location("Start", "You are at the starting point of your adventure.");
 
         // Act
-        bool taken = player.TakeItem("map", location);
+        bool taken = world.TakeItem(player, "map");
 
         // Assert
         Assert.True(taken);
@@ -95,11 +95,11 @@ public class TextAdventureTests
     public void World_PreventsTakingNonexistentItem()
     {
         // Arrange
+        var world = new World();
         var player = new Player(100);
-        var location = new Location("Start", "You are at the starting point of your adventure.");
 
         // Act
-        bool taken = player.TakeItem("nonexistent", location);
+        bool taken = world.TakeItem(player, "nonexistent");
 
         // Assert
         Assert.False(taken);
