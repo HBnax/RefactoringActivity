@@ -81,7 +81,7 @@ public class Player
     public bool SolvePuzzle(string puzzleName, World world)
     {
         Location location = world.Locations[GetCurrentLocation()];
-        Puzzle? puzzle = location.GetPuzzles().Find(p => p.Name == puzzleName);
+        Puzzle? puzzle = location.GetPuzzles().Find(p => p.GetName() == puzzleName);
 
         if (puzzle != null && puzzle.Solve())
         {

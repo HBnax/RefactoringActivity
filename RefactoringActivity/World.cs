@@ -107,7 +107,7 @@ public class World
     {
         details += "\nYou see the following puzzles:";
         foreach (Puzzle puzzle in location.GetPuzzles()) 
-            details += $"\n- {puzzle.Name}";
+            details += $"\n- {puzzle.GetName()}";
         return details;
     }
 
@@ -126,5 +126,64 @@ public class World
             details += exit + ", ";
         details = details.Substring(0, details.Length - 2);
         return details;
+    }
+    
+    public bool MovePlayer(Player player, string direction)
+    {
+        if (Locations[player.GetCurrentLocation()].GetExits().ContainsKey(direction))
+        {
+            player.SetCurrentLocation(Locations[player.GetCurrentLocation()].GetExits()[direction]);
+            return true;
+        }
+
+        return false;
+    }
+    
+    public bool TakeItem(Player player, string itemName)
+    {
+        Location location = Locations[player.GetCurrentLocation()];
+        if (location.GetItems().Contains(itemName))
+        {
+            location.GetItems().Remove(itemName);
+            player.GetInventory().Add(itemName);
+            Console.WriteLine($"You take the {itemName}.");
+            return true;
+        }
+        return false;
+    }
+
+    public bool UseItem(Player player, string itemName)
+    {
+        if (player.GetInventory().Contains(itemName))
+        {
+            if (itemName == "potion")
+            {
+                Console.WriteLine("Ouch! That tasted like poison!");
+                player.SetHealth(player.GetHealth() - 10);
+                Console.WriteLine($"Your health is now {player.GetHealth()}.");
+            }
+            else
+            {
+                Console.WriteLine($"The {itemName} disappears in a puff of smoke!");
+            }
+            player.GetInventory().Remove(itemName);
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool SolvePuzzle(Player player, string puzzleName)
+    {
+        Location location = Locations[player.GetCurrentLocation()];
+        Puzzle? puzzle = location.GetPuzzles().Find(p => p.GetName() == puzzleName);
+
+        if (puzzle != null && puzzle.Solve())
+        {
+            location.GetPuzzles().Remove(puzzle);
+            return true;
+        }
+
+        return false;
     }
 }

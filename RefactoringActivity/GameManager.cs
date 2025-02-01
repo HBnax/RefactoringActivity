@@ -4,7 +4,7 @@ public class GameManager
 {
     private bool IsRunning;
     private Player Player;
-    //would add an enum for the options but I'm too tired
+    //would add an enum for the options, but I'm too tired
     public World World;
 
     public void RunGame()
